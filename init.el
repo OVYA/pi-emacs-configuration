@@ -1,6 +1,6 @@
 ;; Copyright (c) 2011, Philippe Ivaldi <www.piprime.fr>
 ;; Version: $Id: init.el,v 1.0 2011/06/29 Exp $
-;; $Last Modified on 2011/06/29
+;; $Last Modified on 2012/10/21 23:26:14
 
 ;; This program is free software ; you can redistribute it and/or modify
 ;; it under the terms of the GNU Lesser General Public License as published by
@@ -53,85 +53,54 @@ Attention `user-init-dir' se termine par un /"
 (setq load-path (append load-path (list (cuid "etc")
                                         (cuid "site-lisp")
                                         )))
-;; Load personal configuration
-(if (string= (user-real-login-name) "pi")
-    (load (cuid "pi-parameters"))
-  (load (cuid "my-parameters")))
+
+(load "pi-custom-defition")
 
 (dolist (adp user-path)
   (setenv "PATH" (concat (getenv "PATH") path-separator
                          (expand-file-name adp)))
   (push (expand-file-name adp) exec-path))
 
-;; (defvar missing-packages-list nil
-;;   "List of packages that `try-require' can't find.")
-
-;; ;; Attempt to load a feature/library, failing silently
-;; (defun try-require (feature)
-;;   "Attempt to load a library or module. Return true if the
-;; library given as argument is successfully loaded. If not, instead
-;; of an error, just add the package to a list of missing packages.
-;; Courtesy of http://www.mygooglest.com/fni/dot-emacs.html"
-;;   (condition-case err
-;;       ;; protected form
-;;       (progn
-;;         (message "Checking for library `%s'..." feature)
-;;         (if (stringp feature)
-;;             (load-library feature)
-;;           (require feature))
-;;         (message "Checking for library `%s'... Found" feature))
-;;     ;; error handler
-;;     (file-error  ; condition
-;;      (progn
-;;        (message "Checking for library `%s'... Missing" feature)
-;;        (add-to-list 'missing-packages-list feature))
-;;      nil)))
-
 ;; *=======================================================*
 ;; *.............chargement des configurations.............*
 ;; *=======================================================*
 
+;; ------------------------------------------------
+;; * Je ne veux pas que Emacs modifie mon .emacs! *
+(setq custom-file (cuid "etc/pi-customize.el"))
+(load custom-file)
+
 ;; --------------------------
 ;; * Configuration de bases *
-(defvar pi-auto-fill-mode-hook-alist
-  '(text-mode-hook org-mode-hook)
-  "Liste des hooks pour lesquels je veux le mode auto-fill-mode --coupure automatique des ligne longues--")
+
+(load "pi-font")
 (load "pi-configuration")
 
-;; ----------
-;; * popwin *
-;; Pour avoir configurer les fenêtres spéciales
-;; (*Completion*, *compilation* etc) comme je veux
-;; Certains petits defauts de cette extension me gêne vraiment
-; (load "pi-popwin")
-
-;; --------------------------------------------------
-;; * Sauvegarde de redo/undo à travers les sessions *
+;; --------------------------------------
+;; * stores redo / undo across sessions *
 ;; (load "pi-undohistory")
 
 ;; ------------------------------
 ;; * on-the-fly syntax checking *
 (load "pi-flymake")
 
-;; ----------------------
-;; * Programmer en Elisp *
+;; ----------------------------------------------------
+;; * Major mode for editing Lisp code to run in Emacs *
 (load "pi-elisp")
 
-;; -------------------------
-;; * Spécialement pour moi *
-;; Des morceaux de code qui n'interressent vraiment que moi...
+;; --------------------------------------------
+;; * Pieces of code that interressent only me *
 (when (locate-library "pi-only")
   (load "pi-only"))
 
-;; --------------------------
-;; * Configuration spéciale *
-;; Des choses qui ne sont pas habituellement voulues mais
-;; que moi j'aime (par exemple l'abscence totale de barres)
-;; Raccourcis définis:
-;; C-f1 pour basculer la visibilité de la barre de menu
-(when (string= user-real-login-name "pi") ;; commenter cette ligne pour tester cette config
-  (load "pi-unwanted")
-  )                                       ;; commenter cette ligne pour tester cette config
+;; ------------------
+;; * Special config *
+;; Things that are not usually necessary but;
+;; that I like (eg total absence of bars)
+;; Shortcuts defined:
+;; C-f1 to toggle the visibility of the menu bar
+(when (string= user-real-login-name "pi")
+  (load "pi-unwanted"))
 
 ;; -----------------------
 ;; * Dates et calendrier *
@@ -156,9 +125,8 @@ Attention `user-init-dir' se termine par un /"
 ;; smallurl                  : imprime et met dans le kill-ring une version tinyurl de l'url demandée.
 (load "pi-browse-url")
 
-;; ------------
-;; * Pour SQL *
-;; Pour les bases de données SQL, en particulier MySQL
+;; ----------------
+;; * For SQL mode *
 (load "pi-sql.el")
 
 ;; -----------------------------------
@@ -185,9 +153,8 @@ Attention `user-init-dir' se termine par un /"
 ;;  C-c + ou C-c - ou C-u n C-c + etc…
 (require 'pi-functions)
 
-;; ----------------------------------------
-;; * Je veux les raccourcis clavier de PI *
-;; Raccourcis (re)définis:
+;; ----------------------------------
+;; * I want PI's keyboard shortcuts *
 ;; Redéfini C-k pour que le résultat soit parfait en fin de ligne (voir C-h k C-k)
 ;; C-z        : bascule plein écran
 ;; F8         : affiche le nom du fichier courant
@@ -322,7 +289,7 @@ Attention `user-init-dir' se termine par un /"
 
 ;; ----------
 ;; * python *
-;; For the Puthon programmer
+;; For the Python programmer
 ;; Define "C-c <down>" : py-end-of-block-or-clause
 ;; and "C-c <up>" : py-beginning-of-block-or-clause
 (load "pi-python")
@@ -353,7 +320,7 @@ Attention `user-init-dir' se termine par un /"
 
 ;; --------------
 ;; * TypoScript *
-;; (load "pi-typoscript.el")
+;; (load "pi-typoscript")
 
 ;; ------------------------
 ;; * Programmation en LUA *
@@ -455,7 +422,7 @@ Attention `user-init-dir' se termine par un /"
 ;;; f2   : Go to the next bookmark
 ;;; C-f2 : Add/Remove a bookmark
 ;;; S-f2 : Toggle if a buffer has persistent bookmarks or not.
-(load "pi-bm.el")
+(load "pi-bm")
 
 
 ;; -----------------
@@ -469,12 +436,6 @@ Attention `user-init-dir' se termine par un /"
 ;; Shortcuts defined :
 ;;; f6 switch français/américain
 ;;; M-$ to check the word at point
-(defvar pi-flyspell-prog-mode-alist
-  '(emacs-lisp-mode-hook c-mode-hook asy-mode-hook html-mode-hook)
-  "List of *programming hooks* where I want the auto correction comments")
-(defvar pi-flyspell-mode-alist
-  '(text-mode-hook org-mode-hook jabber-chat-mode-hook)
-  "List of hooks to which I want to auto correction")
 (load "pi-flyspell")
 
 ;; -------------------
@@ -548,14 +509,9 @@ Attention `user-init-dir' se termine par un /"
 
 ;; ----------------------------------------------
 ;; * Manage your `kill-ring' (select and paste) *
-;; Open a fancy pop-up to show the kill-ring
+;; Open a fancy buffer to show the kill-ring
 ;; Key binding defined : C-c y to show the pop-up (use right arrow to show the content)
 (load "pi-browse-kill-ring")
-
-;; ------------------------------------------------
-;; * Je ne veux pas que Emacs modifie mon .emacs! *
-(setq custom-file (cuid "etc/pi-customize.el"))
-(load custom-file)
 
 ;; (setq minibuffer-max-depth nil)
 (put 'downcase-region 'disabled nil)
